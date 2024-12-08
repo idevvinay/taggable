@@ -19,6 +19,7 @@ class Topic extends Taggable {
   const Topic({required super.id, required super.name});
 }
 
+/// A list of users to search from.
 const users = <User>[
   User(id: '1ax', name: 'Alice'),
   User(id: '2by', name: 'Bob'),
@@ -26,6 +27,7 @@ const users = <User>[
   User(id: '4dw', name: 'Carol'),
 ];
 
+/// A list of topics to search from.
 const topics = <Topic>[
   Topic(id: 'myDartId', name: 'Dart'),
   Topic(id: 'myFlutterId', name: 'Flutter'),
@@ -51,21 +53,38 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  /// The [LayerLink] is used to link the [CompositedTransformTarget] and
+  /// [CompositedTransformFollower] widgets required to show the overlay.
   final _layerLink = LayerLink();
+
+  /// The [_formKey] is used to get the [RenderBox] of the [Form] widget to
+  /// position the overlay.
   final _formKey = GlobalKey<FormState>();
+
+  /// The [_focusNode] is used to focus the [TextField] when the overlay is
+  /// closed.
   late FocusNode _focusNode;
 
+  /// A list of comments made using the [TagTextEditingController].
   final List<List<InlineSpan>> comments = [];
 
+  /// The [TagTextEditingController] is used to control the [TextField] and
+  /// handle the tagging logic.
   late final TagTextEditingController _controller;
 
+  /// The [_overlayEntry] is used to show the overlay with the list of
+  /// taggables.
   OverlayEntry? _overlayEntry;
+
+  /// The [backendFormat] is used to display the backend format of the text
   String backendFormat = '';
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+
+    // Initialize the [TagTextEditingController] with the required parameters.
     _controller = TagTextEditingController<Taggable>(
         searchTaggables: searchTaggables,
         buildTaggables: buildTaggables,
@@ -76,6 +95,8 @@ class _HomePageState extends State<HomePage> {
           '#': const TextStyle(color: Colors.green),
           'all:': const TextStyle(color: Colors.purple),
         });
+
+    // Add a listener to update the [backendFormat] when the text changes.
     _controller.addListener(() {
       setState(() {
         backendFormat = _controller.backendTextFormat;
@@ -91,6 +112,10 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  /// This method is used to build the [InlineSpan]s from the backend format.
+  ///
+  /// You can copy this method to your project and modify it as per your
+  /// requirements.
   FutureOr<List<InlineSpan>> _buildTextSpans(
     String backendFormat, {
     TextStyle? defaultStyle,
@@ -131,16 +156,25 @@ class _HomePageState extends State<HomePage> {
     return spans;
   }
 
+  /// Shows the overlay with the list of taggables.
   Future<Taggable?> buildTaggables(
       FutureOr<Iterable<Taggable>> taggables) async {
     final availableTaggables = await taggables;
+
+    // We use a [Completer] to return the selected taggable from the overlay.
+    // This is because overlays do not return values directly.
     Completer<Taggable?> completer = Completer();
+
+    // Remove the existing overlay if it exists.
     _overlayEntry?.remove();
     if (availableTaggables.isEmpty) {
+      // If there are no taggables to show, we return null.
       _overlayEntry = null;
       completer.complete(null);
     } else {
       _overlayEntry = OverlayEntry(builder: (context) {
+        // The following few lines are used to position the overlay above the
+        // [TextField]. It moves along if the [TextField] moves.
         final renderBox =
             _formKey.currentContext!.findRenderObject() as RenderBox;
         return Positioned(
@@ -154,13 +188,19 @@ class _HomePageState extends State<HomePage> {
               child: ListView(
                 shrinkWrap: true,
                 children: availableTaggables.map((taggable) {
+                  // We show the list of taggables in a [ListView].
                   return ListTile(
                     title: Text(taggable.name),
                     tileColor: Theme.of(context).colorScheme.primaryContainer,
                     onTap: () {
+                      // When a taggable is selected, we remove the overlay
                       _overlayEntry?.remove();
                       _overlayEntry = null;
+                      // and complete the [Completer] with the selected taggable.
                       completer.complete(taggable);
+                      // We also focus the [TextField] to continue typing.
+                      // Do this after completing the [Completer] to avoid
+                      // Messing up the logic of adding the taggable to the text.
                       _focusNode.requestFocus();
                     },
                   );
@@ -177,6 +217,9 @@ class _HomePageState extends State<HomePage> {
     return completer.future;
   }
 
+  /// This method searches for taggables based on the tag prefix and tag name.
+  /// 
+  /// You can specify different behaviour based on the tag prefix.
   Future<Iterable<Taggable>> searchTaggables(
       String tagPrefix, String? tagName) async {
     if (tagName == null || tagName.isEmpty) {
@@ -197,6 +240,7 @@ class _HomePageState extends State<HomePage> {
     };
   }
 
+  /// This method converts the backend format to the taggable object.
   FutureOr<Taggable?> backendToTaggable(String prefix, String id) {
     return switch (prefix) {
       '@' => users.where((user) => user.id == id).firstOrNull,
@@ -210,6 +254,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Build a list of comments made using the [TagTextEditingController].
+    // as well as a [TextField] to add new comments.
     return Center(
       child: SizedBox(
         width: 400,
@@ -257,6 +303,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
+                // This is an example of setting the initial text.
                 _controller.setInitialText(
                   "Hello @1ax and welcome to #myFlutterId",
                   backendToTaggable,

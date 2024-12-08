@@ -13,7 +13,7 @@ and the Flutter guide for
 
 A lightweight extension to [TextEditingController](https://api.flutter.dev/flutter/widgets/TextEditingController-class.html) that allows for tagging/mentioning users and the like, with a focus on storing tags in a database-friendly format. Tagging behaviour is similar to that of popular platforms like WhatsApp and Instagram.
 
-![Demo Video](https://raw.githubusercontent.com/WesselvanDam/taggable/refs/heads/main/doc/taggable_screen_recording.gif)
+<img src="https://raw.githubusercontent.com/WesselvanDam/taggable/refs/heads/main/doc/taggable_screen_recording.gif" alt="Demo Video" height="480"/>
 
 ## Motivation
 
@@ -67,13 +67,13 @@ class Topic extends Taggable {
 }
 ```
 
-Or you can make the Taggable class have abstract methods that return the frontend and backend representations of the taggable entity, to be implemented by the subclasses.
+Alternatively, you can make the Taggable class have abstract methods that return the frontend and backend representations of the taggable entity, to be implemented by the subclasses.
 
 ## Usage
 
 ### Installation
 
-Add the package with the following command:
+Add the package to your project with the following command:
 
 ```bash
 flutter pub add taggable
@@ -135,7 +135,7 @@ class _TaggableExampleState extends State<TaggableExample> {
 }
 ```
 
-Note how the controller is type-annotated with the `Taggable` class. In the example above, we specify the following parameters:
+Note how the controller is type-annotated with the `Taggable` class. In the example above, we specify the following parameters (with T being the type of the taggable entity):
 
 ```dart
 FutureOr<Iterable<T>> Function(String prefix, String? query) searchTaggables

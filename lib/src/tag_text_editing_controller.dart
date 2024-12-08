@@ -62,20 +62,25 @@ class TagTextEditingController<T> extends TextEditingController {
   /// Converts a taggable to a string that is stored in the database.
   final String Function(T taggable) toBackendConverter;
 
+  /// A map that maps tag prefixes to text styles.
+  ///
+  /// Prefixes are the characters that are used to denote a tag. They can be
+  /// more than one character long, e.g. 'user:'. The text style is applied to
+  /// the tag when it is displayed to the user.
   final Map<String, TextStyle?> tagStyles;
 
   /// The text that follows the tag prefix, but is not yet a tag.
   TagPrompt _tagPrompt = TagPrompt();
 
   /// A map that maps user display names to taggables.
-  Map<String, (String, T)> _tagStringsToTaggables = {};
+  Map<String, (String, T)> _tagsToTaggables = {};
 
   /// The cursor position before the last change.
   int previousCursorPosition = 0;
 
   @override
   void clear() {
-    _tagStringsToTaggables = {};
+    _tagsToTaggables = {};
     _tagPrompt = TagPrompt();
     super.clear();
   }
@@ -101,15 +106,14 @@ class TagTextEditingController<T> extends TextEditingController {
         tmpText.write('$word ');
         continue;
       }
-      final tagId = word.substring(tagPrefix.length);
-      final taggable = await backendToTaggable(tagPrefix, tagId);
+      final backendTag = word.substring(tagPrefix.length);
+      final taggable = await backendToTaggable(tagPrefix, backendTag);
       if (taggable == null) {
         tmpText.write('$word ');
         continue;
       }
       final frontendString = toFrontendConverter(taggable);
-      _tagStringsToTaggables[tagPrefix + frontendString] =
-          (tagPrefix, taggable);
+      _tagsToTaggables[tagPrefix + frontendString] = (tagPrefix, taggable);
       tmpText.write('$tagStartMarker$tagPrefix$frontendString$tagEndMarker ');
     }
     text = tmpText.toString().trimRight();
@@ -353,7 +357,7 @@ class TagTextEditingController<T> extends TextEditingController {
   /// The taggable is inserted at the current cursor position.
   void taggableUsersTapHandler(String prefix, T taggable) {
     final tagName = toFrontendConverter(taggable);
-    _tagStringsToTaggables[prefix + tagName] = (prefix, taggable);
+    _tagsToTaggables[prefix + tagName] = (prefix, taggable);
 
     final int end = selection.baseOffset;
     final int start = end - _tagPrompt.length;
@@ -384,8 +388,8 @@ class TagTextEditingController<T> extends TextEditingController {
     while (matches.isNotEmpty) {
       final (start as Match, end as Match) = matches[0];
       final String tagName = backendText.substring(start.end, end.start);
-      if (_tagStringsToTaggables.containsKey(tagName)) {
-        final (String prefix, T taggable) = _tagStringsToTaggables[tagName]!;
+      if (_tagsToTaggables.containsKey(tagName)) {
+        final (String prefix, T taggable) = _tagsToTaggables[tagName]!;
         if (taggable == null) {
           // This should never happen, but it is better to be safe than sorry
           backendText = backendText.replaceRange(start.start, end.end, '');
