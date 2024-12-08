@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  taggable:
+  flutter_taggable:
     path: ../
 
 dev_dependencies:

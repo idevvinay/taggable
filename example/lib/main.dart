@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:taggable/taggable.dart';
+import 'package:flutter_taggable/flutter_taggable.dart';
 
 class Taggable {
   const Taggable({required this.id, required this.name});
