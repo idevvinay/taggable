@@ -24,8 +24,8 @@ class TagPrompt {
 /// A controller for an editable text field that supports tagging behaviour.
 class TagTextEditingController<T> extends TextEditingController {
   TagTextEditingController(
-      {required this.buildTaggables,
-      required this.searchTaggables,
+      {required this.searchTaggables,
+      required this.buildTaggables,
       required this.toFrontendConverter,
       required this.toBackendConverter,
       this.tagStyles = const {
@@ -126,7 +126,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// Returns a list of pairs of start and end matches of tags in the text.
-  /// 
+  ///
   /// If a tag is broken, the start or end match is null.
   List<(Match?, Match?)> getTagMatchPairs(String text) {
     final List<Match> startMatches = tagStartMarker.allMatches(text).toList();
@@ -186,7 +186,6 @@ class TagTextEditingController<T> extends TextEditingController {
       position = end.end;
     }
 
-
     // Finally, format the text after the last tag with the default style
     final String textAfterAllTags = text.substring(position, text.length);
     textSpanChildren.add(TextSpan(text: textAfterAllTags, style: style));
@@ -195,13 +194,13 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// A listener that ensures that the cursor is always outside of a tag.
-  /// 
+  ///
   /// If the cursor is inside a tag, it is moved to the nearest side, unless the
   /// user moved into the tag with the arrow keys, in which case the cursor is
   /// moved to the other side.
-  /// 
+  ///
   /// If a tag is broken, the text between the cursor and the tag is removed.
-  /// 
+  ///
   /// If a tag is selected, the tag is selected as a whole.
   void cursorController() {
     final int baseOffset = selection.baseOffset;
@@ -294,7 +293,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// A listener that ensures that there is always whitespace around a tag.
-  /// 
+  ///
   /// If there is no whitespace to the left of a tag, the tag is removed.
   void ensureWhiteSpaceController() {
     final List<(Match?, Match?)> matchPairs = getTagMatchPairs(text);
@@ -337,7 +336,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// A listener that searches for taggables based on the current tag prompt.
-  /// 
+  ///
   /// If taggable options are found, the user is prompted to select one.
   void updateTaggables() async {
     if (_tagPrompt.prefix == null) return;
@@ -350,7 +349,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// Inserts a taggable into the text field.
-  /// 
+  ///
   /// The taggable is inserted at the current cursor position.
   void taggableUsersTapHandler(String prefix, T taggable) {
     final tagName = toFrontendConverter(taggable);
@@ -377,7 +376,7 @@ class TagTextEditingController<T> extends TextEditingController {
   ///
   /// The text is scanned for tags, and the display name of the tagged user is
   /// replaced by the user's ID.
-  String get textToBackendFormat {
+  String get backendTextFormat {
     String backendText = text;
 
     List<(Match?, Match?)> matches = getTagMatchPairs(backendText);

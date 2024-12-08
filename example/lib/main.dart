@@ -67,8 +67,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _focusNode = FocusNode();
     _controller = TagTextEditingController<Taggable>(
-        buildTaggables: buildTaggables,
         searchTaggables: searchTaggables,
+        buildTaggables: buildTaggables,
         toFrontendConverter: (taggable) => taggable.name,
         toBackendConverter: (taggable) => taggable.id,
         tagStyles: {
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
         });
     _controller.addListener(() {
       setState(() {
-        backendFormat = _controller.textToBackendFormat;
+        backendFormat = _controller.backendTextFormat;
       });
     });
   }
@@ -92,7 +92,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   FutureOr<List<InlineSpan>> _buildTextSpans(
-      String backendFormat, TextStyle? defaultStyle) async {
+    String backendFormat, {
+    TextStyle? defaultStyle,
+  }) async {
     String? leadingSpace;
     List<InlineSpan> spans = [];
     for (String word in backendFormat.split(' ')) {
@@ -104,22 +106,24 @@ class _HomePageState extends State<HomePage> {
           )
           .firstOrNull;
       if (tagPrefix == null) {
-        spans.add(TextSpan(text: "$leadingSpace$word"));
+        spans.add(TextSpan(text: "$leadingSpace$word", style: defaultStyle));
         continue;
       }
 
-      final tagStyle = _controller.tagStyles[tagPrefix]!;
       final taggable =
           await backendToTaggable(tagPrefix, word.substring(tagPrefix.length));
 
       if (taggable == null) {
-        spans.add(TextSpan(text: "$leadingSpace$word"));
+        spans.add(TextSpan(text: "$leadingSpace$word", style: defaultStyle));
         continue;
       }
 
+      final tagStyle = _controller.tagStyles[tagPrefix]!;
+      final mergedStyle = defaultStyle?.merge(tagStyle) ?? tagStyle;
+
       spans.add(TextSpan(
         text: "$leadingSpace$tagPrefix${taggable.name}",
-        style: tagStyle,
+        style: mergedStyle,
         recognizer: TapGestureRecognizer()
           ..onTap = () => debugPrint('Tapped on ${taggable.name}'),
       ));
@@ -240,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                       icon: const Icon(Icons.send),
                       onPressed: () async {
                         final textSpans = await _buildTextSpans(
-                            _controller.textToBackendFormat, null);
+                            _controller.backendTextFormat);
                         setState(() {
                           comments.add(textSpans);
                           _controller.clear();
