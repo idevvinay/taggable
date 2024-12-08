@@ -1,6 +1,6 @@
 name: flutter_taggable
 description: A lightweight extension to TextEditingController that allows for tagging/mentioning users, with a focus on storing tags in a database-friendly format.
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/WesselvanDam/taggable
 repository: https://github.com/WesselvanDam/taggable
 

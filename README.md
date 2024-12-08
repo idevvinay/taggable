@@ -42,7 +42,7 @@ This package assumes that your 'taggable' data comes in three forms:
 2. A representation of this entity that can be displayed in the UI.
 3. A representation of this entity that can be stored in the database.
 
-In the [example](https://pub.dev/packages/taggable/example), we use the following class to represent a taggable entity:
+In the [example](https://pub.dev/packages/flutter_taggable/example), we use the following class to represent a taggable entity:
 
 ```dart
 class Taggable {
@@ -76,7 +76,7 @@ Alternatively, you can make the Taggable class have abstract methods that return
 Add the package to your project with the following command:
 
 ```bash
-flutter pub add taggable
+flutter pub add flutter_taggable
 ```
 
 ### Basic usage
@@ -85,7 +85,7 @@ To use the package, you need to replace the default `TextEditingController` with
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:taggable/taggable.dart';
+import 'package:flutter_taggable/flutter_taggable.dart';
 
 class TaggableExample extends StatefulWidget {
   @override
@@ -147,7 +147,7 @@ This function is called whenever the user types a tag. It should return a list o
 Future<T?> Function(FutureOr<Iterable<T>> taggables) buildTaggables
 ```
 
-This function takes the list of taggable entities that match the query and builds the UI representation of these entities. In the [example](https://pub.dev/packages/taggable/example), an `OverlayEntry` is used to display the options as a list. Because users typically select an option by tapping on it, the return type is a Future. The example uses a [Completer](https://api.flutter.dev/flutter/dart-async/Completer-class.html) to return the selected taggable entity, since an `OverlayEntry` does not return a value.
+This function takes the list of taggable entities that match the query and builds the UI representation of these entities. In the [example](https://pub.dev/packages/flutter_taggable/example), an `OverlayEntry` is used to display the options as a list. Because users typically select an option by tapping on it, the return type is a Future. The example uses a [Completer](https://api.flutter.dev/flutter/dart-async/Completer-class.html) to return the selected taggable entity, since an `OverlayEntry` does not return a value.
 
 ```dart
 String Function(T taggable) toFrontendConverter
@@ -176,7 +176,7 @@ There are three processes in which the taggable entities are converted:
 ```dart
 FutureOr<T?> Function(String prefix, String backendString) backendToTaggable
 ```
-3. **Displaying tags outside the text field**: Typically, content created with the `TagTextEditingController` will be displayed in a different widget, such as a comment section. This package does not provide a built-in way to display tags outside the text field, as the display of such content is highly dependent on the UI of your app. However, many of the conversion functions used in the `TagTextEditingController` can be reused to display tags outside the text field. See the [example](https://pub.dev/packages/taggable/example) for one way to display tags outside the text field.
+3. **Displaying tags outside the text field**: Typically, content created with the `TagTextEditingController` will be displayed in a different widget, such as a comment section. This package does not provide a built-in way to display tags outside the text field, as the display of such content is highly dependent on the UI of your app. However, many of the conversion functions used in the `TagTextEditingController` can be reused to display tags outside the text field. See the [example](https://pub.dev/packages/flutter_taggable/example) for one way to display tags outside the text field.
 
 ## Additional information
 
