@@ -1,7 +1,7 @@
 name: taggable
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+homepage: https://github.com/WesselvanDam/taggable
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
