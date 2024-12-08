@@ -55,3 +55,8 @@ build/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Files and folders in the example directory
+/example/pubspec.lock
+/example/android/
+/example/web/
