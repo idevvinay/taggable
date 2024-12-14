@@ -7,12 +7,12 @@ import 'utils/tag_style.dart';
 import 'utils/tag.dart';
 
 /// A controller for an editable text field that supports tagging behaviour.
-/// 
+///
 /// This controller creates accurate representations of tags in the text field,
 /// while also allowing for a database-friendly backend format. This format can
 /// be retrieved from the controller's `textInBackendFormat` property. Do not
 /// use `controller.text` directly, as the internal format typically differs.
-/// 
+///
 /// Additional programmatical modifications to the text that this controller
 /// manages should be done with caution, as it may interfere with the tagging
 /// behaviour. However, the controller exposes an 'insertTaggable' method that
@@ -88,7 +88,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// Sets the initial text of the text field, converting backend strings to taggables.
-  /// 
+  ///
   /// The `backendToTaggable` function is used to convert backend strings to taggables.
   /// It has the 'FutureOr' signature to allow for asynchronous operations.
   void setText(
@@ -199,7 +199,7 @@ class TagTextEditingController<T> extends TextEditingController {
   /// If the cursor is inside a tag, it is moved to the nearest side, unless the
   /// user moved into the tag with the arrow keys, in which case the cursor is
   /// moved to the other side.
-  /// 
+  ///
   /// If a range is selected, any tags included in the range are selected as a whole.
   void _cursorController() {
     final baseOffset = selection.baseOffset;
@@ -210,8 +210,7 @@ class TagTextEditingController<T> extends TextEditingController {
     if (isCollapsed) {
       // Check if the cursor is inside a tag
       final matchWithCursor = _getTagMatches(text)
-          .where(
-              (match) => match.start <= baseOffset && match.end > baseOffset)
+          .where((match) => match.start <= baseOffset && match.end > baseOffset)
           .firstOrNull;
 
       if (matchWithCursor == null) {
@@ -254,12 +253,11 @@ class TagTextEditingController<T> extends TextEditingController {
     } else {
       // Check if the selection covers a tag
       final matchWithBase = _getTagMatches(text)
-          .where(
-              (match) => match.start < baseOffset && match.end > baseOffset)
+          .where((match) => match.start < baseOffset && match.end > baseOffset)
           .firstOrNull;
       final matchWithExtent = _getTagMatches(text)
-          .where((match) =>
-              match.start < extentOffset && match.end > extentOffset)
+          .where(
+              (match) => match.start < extentOffset && match.end > extentOffset)
           .firstOrNull;
       final baseBeforeExtent = baseOffset < extentOffset;
 
@@ -280,7 +278,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// Checks if a tag can be created at the current cursor.
-  /// 
+  ///
   /// If a tag can be created, the prefix and the prompt are returned.
   (String prefix, String prompt)? _checkTagQueryController() {
     if (!selection.isCollapsed) {
@@ -303,9 +301,9 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// A listener that ensures that that tags are recognisable.
-  /// 
+  ///
   /// If a tag is not recognisable, it is assumed to be invalid and is removed.
-  /// This happens for example when the user backspaces over a tag or adds a 
+  /// This happens for example when the user backspaces over a tag or adds a
   /// character to the end of a tag that results in the regular expression not
   /// matching the tag anymore.
   void _checkTagRecognizabilityController() {
@@ -383,7 +381,7 @@ class TagTextEditingController<T> extends TextEditingController {
   }
 
   /// Inserts a [taggable] into the text field at the current cursor position.
-  /// 
+  ///
   /// Insertion typically replaces any tag prompt with the taggable. The number
   /// of characters to replace is given by [charactersToReplace].
   void insertTaggable(String prefix, T taggable, int charactersToReplace) {

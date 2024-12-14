@@ -13,7 +13,7 @@ class Tag<T> {
   final TagStyle style;
 
   /// Converts the taggable object to a string for the frontend or backend.
-  /// 
+  ///
   /// Important: the backend string created by this method is not the true backend
   /// representation of the tag. Both frontend and backend strings are modified
   /// to have the same length, so that the frontend text field's cursor behaviour

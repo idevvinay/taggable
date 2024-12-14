@@ -4,17 +4,16 @@ import 'package:flutter/material.dart';
 
 import 'utils/tag_style.dart';
 
-
 /// A utility function that converts a tag text into a list of inline spans.
-/// 
+///
 /// You can use this to convert a string containing tags (in the backend format)
 /// into a list of inline spans, where each tag is represented by a custom
 /// widget.
-/// 
+///
 /// Typically, the [tagStyles] list is the same as the one used in the creation
 /// of the tag text to parse the tags. The [backendToTaggable] function is used
 /// to convert the backend string into a taggable object and may be asynchronous.
-/// 
+///
 /// Usage:
 /// ```dart
 /// return convertTagTextToInlineSpans<Taggable>(

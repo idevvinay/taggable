@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Fixed a formatting issue
+
 ## 1.0.0
 
 * First stable release. Please refer to the README, the API documentation, and the examples for more information.
