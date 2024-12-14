@@ -5,26 +5,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_taggable/flutter_taggable.dart';
 
 class Taggable {
-  const Taggable({required this.id, required this.name});
+  const Taggable({required this.id, required this.name, required this.icon});
 
   final String id;
   final String name;
+  final IconData icon;
 }
 
 class User extends Taggable {
-  const User({required super.id, required super.name});
+  const User(
+      {required super.id, required super.name, super.icon = Icons.person});
 }
 
 class Topic extends Taggable {
-  const Topic({required super.id, required super.name});
+  const Topic(
+      {required super.id, required super.name, super.icon = Icons.topic});
 }
 
 /// A list of users to search from.
 const users = <User>[
-  User(id: '1ax', name: 'Alice'),
-  User(id: '2by', name: 'Bob'),
-  User(id: '3cz', name: 'Charlie'),
-  User(id: '4dw', name: 'Carol'),
+  User(id: 'aliceUniqueId', name: 'Alice'),
+  User(id: 'otherAliceUniqueId', name: 'Alice', icon: Icons.person_outline),
+  User(id: 'bobUniqueId', name: 'Bob'),
+  User(id: 'charLieUniqueId', name: 'Charlie'),
+  User(id: 'carolUniqueId', name: 'Carol'),
+  User(id: 'hawkingUniqueId', name: 'Stephen Hawking'),
 ];
 
 /// A list of topics to search from.
@@ -41,7 +46,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: Scaffold(body: HomePage()));
+    return const MaterialApp(
+      home: Scaffold(body: HomePage()),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
 
@@ -90,18 +98,21 @@ class _HomePageState extends State<HomePage> {
         buildTaggables: buildTaggables,
         toFrontendConverter: (taggable) => taggable.name,
         toBackendConverter: (taggable) => taggable.id,
-        tagStyles: {
-          '@': const TextStyle(color: Colors.blue),
-          '#': const TextStyle(color: Colors.green),
-          'all:': const TextStyle(color: Colors.purple),
-        });
+        tagStyles: [
+          const TagStyle(
+            prefix: '@',
+            textStyle: TextStyle(color: Colors.blue),
+          ),
+          const TagStyle(
+            prefix: '#',
+            textStyle: TextStyle(color: Colors.green),
+          ),
+        ]);
 
     // Add a listener to update the [backendFormat] when the text changes.
-    _controller.addListener(() {
-      setState(() {
-        backendFormat = _controller.backendTextFormat;
-      });
-    });
+    _controller.addListener(() => setState(() {
+          backendFormat = _controller.textInBackendFormat;
+        }));
   }
 
   @override
@@ -113,47 +124,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// This method is used to build the [InlineSpan]s from the backend format.
-  ///
-  /// You can copy this method to your project and modify it as per your
-  /// requirements.
   FutureOr<List<InlineSpan>> _buildTextSpans(
-    String backendFormat, {
-    TextStyle? defaultStyle,
-  }) async {
-    String? leadingSpace;
-    List<InlineSpan> spans = [];
-    for (String word in backendFormat.split(' ')) {
-      leadingSpace = leadingSpace == null ? "" : " ";
-
-      final tagPrefix = _controller.tagStyles.keys
-          .where(
-            (prefix) => word.startsWith(prefix),
-          )
-          .firstOrNull;
-      if (tagPrefix == null) {
-        spans.add(TextSpan(text: "$leadingSpace$word", style: defaultStyle));
-        continue;
-      }
-
-      final taggable =
-          await backendToTaggable(tagPrefix, word.substring(tagPrefix.length));
-
-      if (taggable == null) {
-        spans.add(TextSpan(text: "$leadingSpace$word", style: defaultStyle));
-        continue;
-      }
-
-      final tagStyle = _controller.tagStyles[tagPrefix]!;
-      final mergedStyle = defaultStyle?.merge(tagStyle) ?? tagStyle;
-
-      spans.add(TextSpan(
-        text: "$leadingSpace$tagPrefix${taggable.name}",
-        style: mergedStyle,
-        recognizer: TapGestureRecognizer()
-          ..onTap = () => debugPrint('Tapped on ${taggable.name}'),
-      ));
-    }
-    return spans;
+    String backendFormat,
+    BuildContext context,
+  ) async {
+    return convertTagTextToInlineSpans<Taggable>(
+      backendFormat,
+      tagStyles: _controller.tagStyles,
+      backendToTaggable: backendToTaggable,
+      taggableToInlineSpan: (taggable, tagStyle) {
+        return TextSpan(
+          text: '${tagStyle.prefix}${taggable.name}',
+          style: tagStyle.textStyle,
+          recognizer: TapGestureRecognizer()
+            ..onTap = () => ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Tapped ${taggable.name} with id ${taggable.id}',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                ),
+        );
+      },
+    );
   }
 
   /// Shows the overlay with the list of taggables.
@@ -190,17 +184,18 @@ class _HomePageState extends State<HomePage> {
                 children: availableTaggables.map((taggable) {
                   // We show the list of taggables in a [ListView].
                   return ListTile(
+                    leading: Icon(taggable.icon),
                     title: Text(taggable.name),
                     tileColor: Theme.of(context).colorScheme.primaryContainer,
                     onTap: () {
-                      // When a taggable is selected, we remove the overlay
+                      // When a taggable is selected, remove the overlay
                       _overlayEntry?.remove();
                       _overlayEntry = null;
-                      // and complete the [Completer] with the selected taggable.
+                      // and complete the Completer with the selected taggable.
                       completer.complete(taggable);
-                      // We also focus the [TextField] to continue typing.
-                      // Do this after completing the [Completer] to avoid
-                      // Messing up the logic of adding the taggable to the text.
+                      // Focus the [TextField] to continue typing.
+                      // Do this after completing the Completer to avoid
+                      // interfering with the logic of adding the taggable.
                       _focusNode.requestFocus();
                     },
                   );
@@ -218,7 +213,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// This method searches for taggables based on the tag prefix and tag name.
-  /// 
+  ///
   /// You can specify different behaviour based on the tag prefix.
   Future<Iterable<Taggable>> searchTaggables(
       String tagPrefix, String? tagName) async {
@@ -256,62 +251,66 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // Build a list of comments made using the [TagTextEditingController].
     // as well as a [TextField] to add new comments.
+
     return Center(
-      child: SizedBox(
-        width: 400,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...comments.map((comment) {
-              return Card(
-                margin: const EdgeInsets.all(4),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text.rich(
-                    TextSpan(
-                      children: comment,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: SizedBox(
+          width: 600,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...comments.map((comment) {
+                return Card(
+                  margin: const EdgeInsets.all(4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text.rich(
+                      TextSpan(
+                        children: comment,
+                      ),
                     ),
                   ),
-                ),
-              );
-            }),
-            Form(
-              key: _formKey,
-              child: CompositedTransformTarget(
-                link: _layerLink,
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Type @ to tag a user or # to tag a topic',
-                    helperText: 'Backend format: $backendFormat',
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: () async {
-                        final textSpans = await _buildTextSpans(
-                            _controller.backendTextFormat);
-                        setState(() {
-                          comments.add(textSpans);
-                          _controller.clear();
-                        });
-                      },
+                );
+              }),
+              Form(
+                key: _formKey,
+                child: CompositedTransformTarget(
+                  link: _layerLink,
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Type @ to tag a user or # to tag a topic',
+                      helperText: 'Backend format: $backendFormat',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: () async {
+                          final textSpans =
+                              await _buildTextSpans(_controller.text, context);
+                          setState(() {
+                            comments.add(textSpans);
+                            _controller.clear();
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                // This is an example of setting the initial text.
-                _controller.setInitialText(
-                  "Hello @1ax and welcome to #myFlutterId",
-                  backendToTaggable,
-                );
-              },
-              child: const Text('Set initial text'),
-            ),
-          ],
+              TextButton(
+                onPressed: () {
+                  // This is an example of setting the initial text.
+                  _controller.setText(
+                    "Hello @aliceUniqueId and welcome to #myFlutterId",
+                    backendToTaggable,
+                  );
+                },
+                child: const Text('Set initial text'),
+              ),
+            ],
+          ),
         ),
       ),
     );

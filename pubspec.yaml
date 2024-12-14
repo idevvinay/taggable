@@ -1,8 +1,11 @@
 name: flutter_taggable
-description: A lightweight extension to TextEditingController that allows for tagging/mentioning users, with a focus on storing tags in a database-friendly format.
-version: 0.0.4
+description: Mention users, insert hashtags, and tag other entities with this lightweight, customizable package. It provides a database-friendly format for easy storing and parsing of tags.
+version: 1.0.0
 homepage: https://github.com/WesselvanDam/taggable
 repository: https://github.com/WesselvanDam/taggable
+issue_tracker: https://github.com/WesselvanDam/taggable/issues
+
+topics: [tag, mention, hashtag, tagging, user]
 
 environment:
   sdk: '>=3.4.1 <4.0.0'
