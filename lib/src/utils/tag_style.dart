@@ -30,5 +30,6 @@ class TagStyle {
   final String regExp;
 
   /// The text style to apply to the tag in the text field.
+  @Deprecated('Use the [TagTextEditingController.textStyleBuilder] instead.')
   final TextStyle? textStyle;
 }

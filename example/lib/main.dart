@@ -94,25 +94,17 @@ class _HomePageState extends State<HomePage> {
 
     // Initialize the [TagTextEditingController] with the required parameters.
     _controller = TagTextEditingController<Taggable>(
-        searchTaggables: searchTaggables,
-        buildTaggables: buildTaggables,
-        toFrontendConverter: (taggable) => taggable.name,
-        toBackendConverter: (taggable) => taggable.id,
-        tagStyles: [
-          const TagStyle(
-            prefix: '@',
-            textStyle: TextStyle(color: Colors.blue),
-          ),
-          const TagStyle(
-            prefix: '#',
-            textStyle: TextStyle(color: Colors.green),
-          ),
-        ]);
+      searchTaggables: searchTaggables,
+      buildTaggables: buildTaggables,
+      toFrontendConverter: (taggable) => taggable.name,
+      toBackendConverter: (taggable) => taggable.id,
+      textStyleBuilder: textStyleBuilder,
+      tagStyles: const [TagStyle(prefix: '@'), TagStyle(prefix: '#')],
+    );
 
     // Add a listener to update the [backendFormat] when the text changes.
-    _controller.addListener(() => setState(() {
-          backendFormat = _controller.textInBackendFormat;
-        }));
+    _controller.addListener(
+        () => setState(() => backendFormat = _controller.textInBackendFormat));
   }
 
   @override
@@ -121,6 +113,26 @@ class _HomePageState extends State<HomePage> {
     _controller.dispose();
     _overlayEntry?.remove();
     super.dispose();
+  }
+
+  TextStyle? textStyleBuilder(
+      BuildContext context, String prefix, Taggable taggable) {
+    if (taggable.id == 'hawkingUniqueId') {
+      return const TextStyle(
+        color: Colors.red,
+        decoration: TextDecoration.underline,
+        fontWeight: FontWeight.bold,
+      );
+    }
+    return switch (prefix) {
+      '@' => TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold),
+      '#' => TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+          fontWeight: FontWeight.bold),
+      _ => null,
+    };
   }
 
   /// This method is used to build the [InlineSpan]s from the backend format.
@@ -135,7 +147,7 @@ class _HomePageState extends State<HomePage> {
       taggableToInlineSpan: (taggable, tagStyle) {
         return TextSpan(
           text: '${tagStyle.prefix}${taggable.name}',
-          style: tagStyle.textStyle,
+          style: textStyleBuilder(context, tagStyle.prefix, taggable),
           recognizer: TapGestureRecognizer()
             ..onTap = () => ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Added the `textStyleBuilder` parameter to the `TagTextEditingController` constructor for determining the style of tags in the TextField, in favor of the `textStyle` parameter of the `TagStyle` class, which has been deprecated. The builder allows you to use the TextField's `BuildContext` when initializing the `TagTextEditingController` object in the `initState` method of a StatefulWidget, such that you can access inherited styles such as `Theme.of(context).textTheme`.
+
 ## 1.0.1
 
 * Fixed a formatting issue

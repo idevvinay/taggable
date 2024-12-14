@@ -25,6 +25,7 @@ class TagTextEditingController<T> extends TextEditingController {
     required this.buildTaggables,
     required this.toFrontendConverter,
     required this.toBackendConverter,
+    this.textStyleBuilder,
     this.tagStyles = const [TagStyle()],
   }) : super() {
     addListener(taggingListeners);
@@ -68,6 +69,10 @@ class TagTextEditingController<T> extends TextEditingController {
 
   /// A list of [TagStyle] styles that are supported by the controller.
   final List<TagStyle> tagStyles;
+
+  /// A function that builds a text style for a taggable based on the tag style.
+  final TextStyle? Function(BuildContext context, String prefix, T taggable)?
+      textStyleBuilder;
 
   /// A map that maps taggable backend formats to taggable objects.
   Map<String, T> _tagBackendFormatsToTaggables = {};
@@ -168,6 +173,9 @@ class TagTextEditingController<T> extends TextEditingController {
         isFrontend: true,
       );
 
+      final textStyle =
+          textStyleBuilder?.call(context, tag.style.prefix, tag.taggable) ??
+              tag.style.textStyle;
       // The Flutter engine does not render zero-width spaces with actual zero
       // width, so we need to split the tag into two parts: the leading space
       // markers and the actual tag text, while applying a zero letter spacing
@@ -181,12 +189,12 @@ class TagTextEditingController<T> extends TextEditingController {
         ));
         textSpanChildren.add(TextSpan(
           text: tagText.substring(lastSpaceMarker + 1),
-          style: tag.style.textStyle,
+          style: textStyle,
         ));
         continue;
       }
 
-      textSpanChildren.add(TextSpan(text: tagText, style: tag.style.textStyle));
+      textSpanChildren.add(TextSpan(text: tagText, style: textStyle));
     }
 
     final textAfterAllTags = text.substring(position, text.length);
