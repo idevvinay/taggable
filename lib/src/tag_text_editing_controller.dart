@@ -401,14 +401,15 @@ class TagTextEditingController<T> extends TextEditingController {
       isFrontend: false,
     );
 
+    final tagTextWithSpace = '$tagText ';
     _tagBackendFormatsToTaggables[tagText] = taggable;
 
     final end = selection.baseOffset;
     final start = end - charactersToReplace;
 
     value = TextEditingValue(
-      text: text.replaceRange(start, end, tagText),
-      selection: TextSelection.collapsed(offset: start + tagText.length),
+      text: text.replaceRange(start, end, tagTextWithSpace),
+      selection: TextSelection.collapsed(offset: start + tagTextWithSpace.length),
     );
   }
 
